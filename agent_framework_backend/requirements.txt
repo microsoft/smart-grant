@@ -54,7 +54,7 @@ python-dotenv==1.2.2
 
 # Data Validation
 pydantic==2.13.4
-pydantic-settings==2.14.1
+pydantic-settings==2.14.2
 
 # Logs estruturados. main.py importa structlog na primeira linha, mas ele so
 # chegava ate aqui como dependencia transitiva do agent-framework -- fragil
