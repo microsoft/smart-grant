@@ -1,0 +1,15 @@
+# Code owners are requested for review automatically on every pull request that
+# touches a file they own, and -- with branch protection set to "require review
+# from Code Owners" -- their approval is required before it can merge.
+#
+# A handle that is misspelled, or that belongs to someone without access to this
+# repository, is silently ignored: GitHub reports no error, the rule simply stops
+# protecting the file. Verify every handle resolves before relying on it.
+
+* @hcmarque
+
+# A infraestrutura e o pipeline decidem o que roda em producao e com quais
+# permissoes. Continuam cobertos pela regra acima; estao listados a parte para
+# que a intencao fique explicita a quem le o arquivo.
+/infra/              @hcmarque
+/.github/workflows/  @hcmarque

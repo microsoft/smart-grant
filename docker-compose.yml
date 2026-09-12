@@ -1,0 +1,66 @@
+# ============================================================================
+# Docker Compose - Smart Grant Request
+# One command to run everything: docker-compose up
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # Frontend - Next.js Application
+  # ==========================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grant-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - AGENT_FRAMEWORK_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - grant-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ==========================================================================
+  # Backend - Python FastAPI Agent Framework
+  # ==========================================================================
+  backend:
+    build:
+      context: ./agent_framework_backend
+      dockerfile: Dockerfile
+    container_name: grant-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./agent_framework_backend/.env
+    environment:
+      - CORS_ORIGINS=http://localhost:3000,http://frontend:3000
+    networks:
+      - grant-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  grant-network:
+    driver: bridge
+
+# Optional: Named volumes for caching (uncomment if needed)
+# volumes:
+#   node_modules:
+#   python_cache:

@@ -1,0 +1,223 @@
+name: Deploy Smart Grant Request to Azure
+
+# ============================================================================
+# Publica as imagens e troca a imagem dos dois container apps.
+#
+# Este workflow NAO define configuracao de infraestrutura. Rede, identidades,
+# RBAC, segredos e variaveis de ambiente sao descritos em infra/*.bicep e
+# aplicados de la. Aqui so muda a imagem, que e a unica coisa que varia a cada
+# commit. Manter essa fronteira evita que um deploy de rotina sobrescreva em
+# silencio o que a infraestrutura declarou.
+# ============================================================================
+
+on:
+  push:
+    # Somente o trunk publica. Qualquer outro branch chega a producao por PR,
+    # nunca por push direto, para que os portoes do CI sejam obrigatorios.
+    branches: [main]
+  workflow_dispatch:
+
+# Dois deploys simultaneos disputariam a mesma revisao do container app e o
+# resultado dependeria de qual terminasse por ultimo. Assim eles enfileiram, e
+# nenhum e cancelado no meio de uma troca de imagem.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  # Necessario para o GitHub emitir o token OIDC que o Entra ID troca por um
+  # token de acesso. Sem isso o login federado nao acontece.
+  id-token: write
+
+env:
+  # Estes quatro valores descrevem a SUA assinatura, nao a de quem escreveu o
+  # projeto. Ficam em variaveis de repositorio (Settings > Secrets and
+  # variables > Actions > Variables) e nao no arquivo, para que um fork nao
+  # precise editar o workflow -- e para que ninguem publique acidentalmente
+  # numa infraestrutura que nao e sua.
+  #
+  # Nao sao segredos: sao nomes de recursos. Quem tenta usa-los sem as
+  # permissoes federadas nao consegue nada.
+  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+  RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
+  BACKEND_APP: ${{ vars.BACKEND_APP }}
+  FRONTEND_APP: ${{ vars.FRONTEND_APP }}
+
+jobs:
+  # Os mesmos lint, testes e build do CI, reaproveitados como pre-requisito.
+  # Antes o deploy era um workflow independente sem `needs:`, entao um commit
+  # com CI vermelho era publicado assim mesmo.
+  quality:
+    name: Portoes de qualidade
+    uses: ./.github/workflows/ci.yml
+
+  build-and-deploy:
+    name: Build e deploy
+    needs: quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Login federado: o GitHub emite um token OIDC valido so para esta
+      # execucao e o Entra ID o troca por um token de acesso. Nao existe senha
+      # guardada em lugar nenhum. Os tres valores abaixo sao identificadores,
+      # nao credenciais -- sozinhos nao autenticam ninguem; o que autoriza e a
+      # credencial federada declarada em infra/foundation.bicep, presa a este
+      # repositorio e a este branch.
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        # Pela mesma identidade federada, com AcrPush concedido em
+        # infra/rbac-shared.bicep. Substitui a credencial de admin do registry.
+        # `az acr login` grava o token no docker, que e onde o passo de build
+        # em seguida o encontra.
+        run: az acr login --name "$ACR_LOGIN_SERVER"
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./agent_framework_backend
+          file: ./agent_framework_backend/Dockerfile
+          push: true
+          tags: ${{ env.ACR_LOGIN_SERVER }}/smartgrant-backend:${{ github.sha }},${{ env.ACR_LOGIN_SERVER }}/smartgrant-backend:latest
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.ACR_LOGIN_SERVER }}/smartgrant-frontend:${{ github.sha }},${{ env.ACR_LOGIN_SERVER }}/smartgrant-frontend:latest
+          build-args: |
+            AGENT_FRAMEWORK_URL=http://${{ vars.BACKEND_APP }}
+
+      # O backend sobe primeiro: o frontend depende dele em tempo de execucao.
+      - name: Deploy backend to Container Apps
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            set -euo pipefail
+            az containerapp update \
+              --name "${{ env.BACKEND_APP }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --image "${{ env.ACR_LOGIN_SERVER }}/smartgrant-backend:${{ github.sha }}" \
+              --output none
+
+      - name: Deploy frontend to Container Apps
+        # Somente a imagem. A versao anterior deste passo passava
+        # `--set-env-vars AUTH_USERNAME/AUTH_PASSWORD/AUTH_SECRET`, o que
+        # gravaria as credenciais em texto puro no container app e substituiria
+        # as referencias ao Key Vault. Hoje os segredos sao resolvidos pela
+        # identidade gerenciada atraves do endpoint privado, e nada aqui deve
+        # toca-los.
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            set -euo pipefail
+            az containerapp update \
+              --name "${{ env.FRONTEND_APP }}" \
+              --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --image "${{ env.ACR_LOGIN_SERVER }}/smartgrant-frontend:${{ github.sha }}" \
+              --output none
+
+      - name: Verify deployment
+        # Um deploy que nao verifica nao e um deploy. Confere se a revisao mais
+        # recente de cada app roda a imagem deste commit, se foi provisionada e
+        # esta em execucao, e se a tela de login responde.
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            set -euo pipefail
+
+            # Todas as replicas ativas reportam RunningAtMaxScale. E saudavel:
+            # com maxReplicas 3, tratar isso como falha derrubaria o deploy
+            # justamente quando a app esta sob carga.
+            esta_no_ar() {
+              [ "$1" = "Running" ] || [ "$1" = "RunningAtMaxScale" ]
+            }
+
+            check_app() {
+              app="$1"
+              expected="$2"
+              rg="${{ env.RESOURCE_GROUP }}"
+
+              revision=$(az containerapp show --name "$app" --resource-group "$rg" \
+                --query properties.latestRevisionName -o tsv)
+
+              provisioning=''
+              running=''
+
+              # Uma revisao recem-criada passa por "Activating" antes de servir,
+              # entao ler o estado uma unica vez logo apos a troca de imagem
+              # observa a transicao e nao o resultado. Ate 5 minutos por app.
+              for tentativa in $(seq 1 30); do
+                # Uma unica leitura: tres chamadas separadas poderiam observar
+                # estados de momentos diferentes. `-o tsv` sobre uma lista
+                # devolve um valor POR LINHA, nao separado por tab -- o
+                # `cut -f1` que havia aqui antes nao encontrava tab nenhum e
+                # copiava as tres linhas para dentro de cada variavel.
+                info=$(az containerapp revision show --name "$app" --revision "$revision" \
+                  --resource-group "$rg" \
+                  --query "[properties.provisioningState, properties.runningState, properties.template.containers[0].image]" \
+                  -o tsv)
+
+                provisioning=$(printf '%s\n' "$info" | sed -n 1p)
+                running=$(printf '%s\n' "$info" | sed -n 2p)
+                image=$(printf '%s\n' "$info" | sed -n 3p)
+
+                echo "$app -> $revision | $provisioning | $running | tentativa $tentativa"
+
+                if [ "$provisioning" = "Failed" ]; then
+                  echo "FALHA: o provisionamento da revisao de $app falhou" >&2
+                  return 1
+                fi
+
+                if [ "$provisioning" = "Provisioned" ] && esta_no_ar "$running"; then
+                  if [ "$image" != "$expected" ]; then
+                    echo "FALHA: $app roda '$image', esperado '$expected'" >&2
+                    return 1
+                  fi
+                  return 0
+                fi
+
+                sleep 10
+              done
+
+              echo "FALHA: revisao de $app nao ficou pronta a tempo (ultimo estado: $provisioning / $running)" >&2
+              return 1
+            }
+
+            check_app "${{ env.BACKEND_APP }}" \
+              "${{ env.ACR_LOGIN_SERVER }}/smartgrant-backend:${{ github.sha }}"
+            check_app "${{ env.FRONTEND_APP }}" \
+              "${{ env.ACR_LOGIN_SERVER }}/smartgrant-frontend:${{ github.sha }}"
+
+            # O FQDN e lido do Azure em vez de fixado aqui: ele muda junto com o
+            # ambiente, e um valor fixo passaria a testar o stack errado sem
+            # ninguem perceber.
+            fqdn=$(az containerapp show \
+              --name "${{ env.FRONTEND_APP }}" --resource-group "${{ env.RESOURCE_GROUP }}" \
+              --query properties.configuration.ingress.fqdn -o tsv)
+
+            # /login e publica; qualquer outra rota redirecionaria para ela.
+            # Replicas novas levam alguns segundos ate aceitar trafego.
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              status=$(curl -s -o /dev/null -w '%{http_code}' "https://${fqdn}/login" || true)
+              if [ "$status" = "200" ]; then
+                echo "OK: https://${fqdn}/login respondeu 200"
+                exit 0
+              fi
+              echo "tentativa ${attempt}: /login respondeu ${status}, aguardando..."
+              sleep 10
+            done
+
+            echo "FALHA: /login nao respondeu 200 apos 10 tentativas" >&2
+            exit 1

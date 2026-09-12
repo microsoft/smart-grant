@@ -1,0 +1,49 @@
+# ============================================================================
+# Configuração do ruff para o backend.
+#
+# Sem este arquivo o ruff usava os padrões implícitos da versão instalada.
+# Como o CI faz `pip install ruff` sem fixar versão, cada release do ruff podia
+# (e passou a) reprovar o build sem que uma linha do projeto mudasse. O rol de
+# regras agora é uma decisão explícita e versionada, e o CI fixa a versão.
+# ============================================================================
+
+# Igual ao Dockerfile (python:3.11-slim) e ao CI (setup-python 3.11).
+# Sem isto o ruff infere a versão e muda de opinião entre releases.
+target-version = "py311"
+
+line-length = 100
+
+[lint]
+ignore = [
+    # BLE001 (blind-except) exige estreitar o tipo capturado. Nas camadas de
+    # serviço deste backend o `except Exception` é a decisão de desenho, não
+    # descuido: chamadas a grants.gov, GSA Search, IRS e Fabric passam por
+    # httpx e por parsing de JSON de terceiros, onde o conjunto de exceções
+    # possíveis não é enumerável nem estável entre versões das bibliotecas.
+    # Cada um desses pontos existe para degradar com elegância — devolver
+    # resultado parcial em vez de derrubar a requisição — e registra log antes
+    # de seguir. Estreitar os tipos trocaria uma degradação controlada por um
+    # 500 sempre que um fornecedor mudasse a exceção que levanta.
+    #
+    # Onde o silêncio é intencional e não há log, isso está marcado caso a
+    # caso com `# noqa: S110` e um comentário explicando o porquê.
+    "BLE001",
+]
+
+[lint.flake8-bugbear]
+# `def rota(svc = Depends(get_svc))` é o idioma central do FastAPI: a chamada
+# no default é justamente o mecanismo de injeção de dependência, resolvido a
+# cada request pelo framework — não é o default mutável compartilhado que a
+# B008 existe para pegar. Declarar os callables do FastAPI como imutáveis é a
+# forma suportada de ensinar isso ao linter, em vez de silenciar a regra.
+extend-immutable-calls = [
+    "fastapi.Body",
+    "fastapi.Cookie",
+    "fastapi.Depends",
+    "fastapi.File",
+    "fastapi.Form",
+    "fastapi.Header",
+    "fastapi.Path",
+    "fastapi.Query",
+    "fastapi.Security",
+]

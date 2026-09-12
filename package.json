@@ -1,0 +1,61 @@
+{
+  "name": "smart-grant-request",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n \"BACKEND,FRONTEND\" -c \"yellow,cyan\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "next dev",
+    "dev:backend": "node scripts/dev-backend.mjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "build:school-index": "node scripts/build-school-index.mjs",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@react-three/postprocessing": "^2.19.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.0.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
+    "lucide-react": "^0.400.0",
+    "next": "^15.5.25",
+    "postprocessing": "~6.36.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^2.3.0",
+    "three": "^0.160.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.160.0",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^9.2.1",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.5.25",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.5"
+  },
+  "comments": {
+    "overrides": {
+      "postprocessing": "postprocessing >=6.37 requires three >=0.168; this app is on three 0.160. Pin every consumer to the 6.36 line so exactly one copy is installed and enum identities stay consistent.",
+      "postcss": "Next pins postcss 8.4.31 internally, which carries four advisories (XSS via unescaped </style>, plus arbitrary .map file disclosure via attacker-controlled sourceMappingURL). All are fixed by 8.5.23+. postcss 8.5 is API-compatible with 8.4, so forcing a single deduped copy is safe and clears the alerts.",
+      "glob": "glob 10.2.0-10.4.x ships a CLI command injection (-c/--cmd runs matches with shell:true). Reached only through eslint tooling and never invoked here, but pinned to the patched 10.5 line so a public clone audits clean."
+    }
+  },
+  "overrides": {
+    "postprocessing": "~6.36.7",
+    "postcss": "$postcss",
+    "glob": "^10.5.0"
+  }
+}

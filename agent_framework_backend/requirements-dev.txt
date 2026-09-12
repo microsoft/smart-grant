@@ -1,0 +1,21 @@
+# ============================================================================
+# Ferramentas de qualidade do backend
+# ============================================================================
+#
+# Separadas de requirements.txt porque a imagem de producao nao deve carregar
+# um framework de teste. Mas precisam existir em algum arquivo: antes viviam
+# soltas dentro de ci.yml, entao quem clonava o repositorio, instalava
+# requirements.txt e rodava `pytest` recebia "command not found" -- a suite
+# passava no CI e era inalcancavel na maquina de quem ia contribuir.
+#
+# O CI instala deste arquivo. Ele e a unica fonte das versoes: duplicar os
+# numeros no workflow criaria dois lugares para atualizar e um para esquecer.
+#
+# As versoes sao exatas pelo mesmo motivo das de producao, e neste caso o
+# problema e ainda mais direto: um release novo do ruff muda o conjunto de
+# regras padrao e reprova o build sem que nenhuma linha do projeto tenha
+# mudado. Foi exatamente o que aconteceu antes de o ruff.toml existir.
+
+pytest==9.0.3
+pytest-asyncio==1.3.0
+ruff==0.16.3

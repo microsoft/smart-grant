@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Production
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv/
+agent_framework_backend/venv/
+agent_framework_backend/.env
+*.egg-info/
+.eggs/
+
+# Banco SQLite de uso. O Pulse não escreve mais aqui — o log agora vive em
+# Blob Storage — mas o arquivo sobrevive em instalações antigas até ser
+# migrado com tools/migrate_usage_db.py.
+agent_framework_backend/data/
+
+# Emulador Azurite usado no desenvolvimento local do Pulse.
+.azurite/

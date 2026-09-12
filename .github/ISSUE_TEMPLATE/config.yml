@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  # O MSRC e o canal correto para vulnerabilidades em qualquer repositorio da
+  # Microsoft. A URL nao depende do nome deste repositorio, entao continua
+  # valida mesmo se o projeto mudar de organizacao.
+  - name: Security vulnerability
+    url: https://msrc.microsoft.com/create-report
+    about: Report security issues privately to the Microsoft Security Response Center, never in a public issue.
+  - name: Code of Conduct
+    url: https://opensource.microsoft.com/codeofconduct/
+    about: This project follows the Microsoft Open Source Code of Conduct.

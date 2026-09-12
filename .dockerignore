@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Testing
+coverage
+
+# Environment files (will be injected at runtime)
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Python backend (built separately)
+agent_framework_backend/
+__pycache__
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vercel

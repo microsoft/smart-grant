@@ -1,0 +1,49 @@
+# ============================================================================
+# Contexto de build da imagem do backend.
+#
+# O Dockerfile faz `COPY . .`. Sem este arquivo, a imagem publicada receberia
+# o .env com credenciais reais, o virtualenv local (centenas de MB, compilado
+# para outro sistema operacional) e o banco SQLite de desenvolvimento.
+# ============================================================================
+
+# Credenciais. Nunca entram na imagem: são injetadas em tempo de execução.
+.env
+.env.*
+!.env.example
+
+# Virtualenv local — a imagem constrói o seu próprio em /opt/venv.
+.venv/
+venv/
+ENV/
+
+# Artefatos de bytecode e cache de ferramentas.
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# Estado de execução local.
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Testes não pertencem à imagem de produção.
+tests/
+pytest.ini
+
+# Controle de versão e documentação.
+.git/
+.gitignore
+*.md
+
+# Metadados de sistema operacional e editor.
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Smart Grant Request logo">
+  <title>Smart Grant Request</title>
+  <defs>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D97757"/>
+      <stop offset="100%" stop-color="#B8593E"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="112" height="112" rx="26" fill="#F5F4EE" stroke="#E5E2D8" stroke-width="1.5"/>
+  <!-- abstract document + spark -->
+  <rect x="30" y="26" width="52" height="68" rx="6" fill="#FFFFFF" stroke="#1F1E1D" stroke-width="2"/>
+  <line x1="40" y1="44" x2="72" y2="44" stroke="#5C5B57" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="40" y1="56" x2="72" y2="56" stroke="#5C5B57" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="40" y1="68" x2="60" y2="68" stroke="#5C5B57" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- spark -->
+  <path d="M84 70 L92 60 L88 76 L98 72 L86 92 L92 80 L82 84 Z" fill="url(#warm)" stroke="#1F1E1D" stroke-width="1.25" stroke-linejoin="round"/>
+</svg>
