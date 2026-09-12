@@ -35,7 +35,7 @@ openai==2.36.0
 # Web Framework
 fastapi==0.136.1
 uvicorn[standard]==0.46.0
-python-multipart==0.0.28
+python-multipart==0.0.31
 
 # O Starlette e transitivo do FastAPI, mas fixamos assim mesmo: e ele que
 # implementa roteamento, middleware e TestClient. Deixa-lo solto significa
