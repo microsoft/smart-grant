@@ -2,6 +2,9 @@
   "name": "smart-grant-request",
   "version": "2.0.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "concurrently --kill-others-on-fail -n \"BACKEND,FRONTEND\" -c \"yellow,cyan\" \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "next dev",
@@ -47,6 +50,7 @@
     "typescript": "^5.4.5"
   },
   "comments": {
+    "engines": "Next 15 itself needs >=18.18, but 18 and 20 are both past end of life, so 22 is the oldest line still receiving security fixes and therefore the floor. CI and both images build on the newest line to catch breakage early rather than at upgrade time.",
     "overrides": {
       "postprocessing": "postprocessing >=6.37 requires three >=0.168; this app is on three 0.160. Pin every consumer to the 6.36 line so exactly one copy is installed and enum identities stay consistent.",
       "postcss": "Next pins postcss 8.4.31 internally, which carries four advisories (XSS via unescaped </style>, plus arbitrary .map file disclosure via attacker-controlled sourceMappingURL). All are fixed by 8.5.23+. postcss 8.5 is API-compatible with 8.4, so forcing a single deduped copy is safe and clears the alerts.",
