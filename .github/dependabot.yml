@@ -75,6 +75,11 @@ updates:
       prefix: "chore(deps)"
       include: "scope"
     groups:
+      # agent-framework-openai pins agent-framework-core to a matching range, so a
+      # PR touching only one of them is unresolvable by pip. They move together.
+      agent-framework:
+        patterns:
+          - "agent-framework-*"
       azure-sdk:
         patterns:
           - "azure-*"
