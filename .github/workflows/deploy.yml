@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Login federado: o GitHub emite um token OIDC valido so para esta
       # execucao e o Entra ID o troca por um token de acesso. Nao existe senha
