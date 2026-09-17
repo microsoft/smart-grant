@@ -73,7 +73,9 @@ async def v2_health() -> dict:
 
         engine = {
             "package": "agent_framework",
-            "version": _pkg_version("agent-framework"),
+            # The umbrella `agent-framework` is deliberately not installed, so ask
+            # the distribution that actually ships this module.
+            "version": _pkg_version("agent-framework-core"),
             "agent_class": f"{_SdkAgent.__module__}.{_SdkAgent.__qualname__}",
             "workflow_class": f"{_SdkWorkflow.__module__}.{_SdkWorkflow.__qualname__}",
             "builder_class": f"{_SdkWorkflowBuilder.__module__}.{_SdkWorkflowBuilder.__qualname__}",
