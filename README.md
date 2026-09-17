@@ -189,6 +189,17 @@ Deployment needs three repository **secrets** (`AZURE_CLIENT_ID`, `AZURE_TENANT_
 credentials — alone they authenticate no one. What grants access is the federated
 credential declared in `infra/foundation.bicep`.
 
+> **If federated login fails with no useful error, check the subject claim first.**
+> Most repositories emit `repo:<owner>/<name>:ref:refs/heads/<branch>`, which is what
+> `foundation.bicep` builds by default. Organizations with *immutable OIDC subjects*
+> enabled emit numeric IDs instead — `repo:<owner>@<orgId>/<name>@<repoId>:ref:...` —
+> and a credential registered in the conventional format simply never matches. Read the
+> real value and pass it to `githubSubjectPrefix`:
+>
+> ```bash
+> gh api repos/<owner>/<name>/actions/oidc/customization/sub
+> ```
+
 ---
 
 ## Testing
