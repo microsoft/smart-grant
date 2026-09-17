@@ -43,11 +43,11 @@
     "@types/three": "^0.160.0",
     "autoprefixer": "^10.4.19",
     "concurrently": "^9.2.1",
-    "eslint": "^8.57.0",
+    "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.25",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5.4.5"
+    "typescript": "^6.0.3"
   },
   "comments": {
     "engines": "Next 15 itself needs >=18.18, but 18 and 20 are both past end of life, so 22 is the oldest line still receiving security fixes and therefore the floor. CI and both images build on the newest line to catch breakage early rather than at upgrade time.",
