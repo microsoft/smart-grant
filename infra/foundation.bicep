@@ -53,6 +53,20 @@ param githubRepository string
 
 @description('Unico branch autorizado a publicar em producao.')
 param githubDeployBranch string = 'main'
+
+@description('''
+Prefixo do claim `sub` que o GitHub emite. Deixe vazio para o formato
+convencional `repo:dono/nome`.
+
+Organizacoes com "immutable OIDC subject" ligado emitem identificadores
+numericos no lugar dos nomes -- por exemplo
+`repo:microsoft@6154722/smart-grant@1367656231` -- e uma credencial registrada
+com o formato convencional nunca casa: o login federado falha sem dizer por que.
+Consulte o valor real do seu repositorio com:
+
+  gh api repos/<dono>/<nome>/actions/oidc/customization/sub
+''')
+param githubSubjectPrefix string = ''
 @description('''
 Cria um private endpoint de blob para a conta do Pulse.
 
@@ -252,12 +266,14 @@ resource deployIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-0
 // O `subject` prende o token a um branch especifico deste repositorio. Um
 // token emitido para qualquer outro branch, tag, pull request ou repositorio
 // nao casa com esta credencial e a troca falha.
+var githubSubjectBase = empty(githubSubjectPrefix) ? 'repo:${githubRepository}' : githubSubjectPrefix
+
 resource deployGithubFederation 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2023-01-31' = {
   parent: deployIdentity
   name: 'github-${githubDeployBranch}'
   properties: {
     issuer: 'https://token.actions.githubusercontent.com'
-    subject: 'repo:${githubRepository}:ref:refs/heads/${githubDeployBranch}'
+    subject: '${githubSubjectBase}:ref:refs/heads/${githubDeployBranch}'
     audiences: [
       'api://AzureADTokenExchange'
     ]

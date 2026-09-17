@@ -18,6 +18,28 @@ updates:
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    # React 19 forces @react-three/fiber 9 and drei 10, which drop React 18 in their
+    # peer ranges. That is one coordinated migration of the 3D scenes, not a routine
+    # bump, so majors on that chain are pinned until it is done deliberately.
+    ignore:
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-three/fiber"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-three/drei"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-three/postprocessing"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "three"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "postprocessing"
+        update-types: ["version-update:semver-major"]
     groups:
       next-ecosystem:
         patterns:
