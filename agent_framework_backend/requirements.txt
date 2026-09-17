@@ -26,7 +26,7 @@
 # ele resolve os sub-pacotes soltos, e os mais novos ja exigem um core mais
 # novo do que o guarda-chuva pinado permite -- um conflito insoluvel.
 agent-framework-core==1.3.0
-agent-framework-openai==1.3.0
+agent-framework-openai==1.14.3
 
 # Azure OpenAI Integration
 azure-identity==1.25.3
