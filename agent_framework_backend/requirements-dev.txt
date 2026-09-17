@@ -17,5 +17,5 @@
 # mudado. Foi exatamente o que aconteceu antes de o ruff.toml existir.
 
 pytest==9.1.1
-pytest-asyncio==1.3.0
+pytest-asyncio==1.4.0
 ruff==0.16.7
