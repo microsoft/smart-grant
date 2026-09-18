@@ -5,8 +5,9 @@ import { searchSchoolsNCES, NCESSchool } from '@/services/nces-api'
  * SCHOOL SEARCH API
  *
  * Search for real U.S. schools:
- * 1. The prebuilt NCES index (data/schools-index.json) — 100,237 operating
- *    schools from CCD 2024 via the Urban Institute Education Data Portal.
+ * 1. The prebuilt NCES index (data/schools-index.json) — 102,178 schools from
+ *    CCD 2024 via the Urban Institute Education Data Portal. 1,068 of those are
+ *    flagged closed (school_status 2) and are still searchable.
  * 2. Local curated database (25+ schools) as a fallback when the index is
  *    missing or returns nothing.
  *
