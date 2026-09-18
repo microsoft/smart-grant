@@ -546,3 +546,23 @@ def test_workflow_emits_expected_event_sequence() -> None:
 
     # A Discovery ocupa o slot 0; a geracao comeca no 1.
     assert min(e.agent_index for e in starts) == 1
+
+
+def test_health_reports_the_sdk_actually_orchestrating_the_pipeline():
+    """
+    /v2/health carries a reflective block naming the Agent Framework classes in
+    use. It asked importlib for the version of `agent-framework`, the umbrella
+    package this project deliberately does not install, so the lookup raised
+    PackageNotFoundError and the whole block collapsed into an error string --
+    in production, silently, for as long as the umbrella has been absent.
+    """
+    from fastapi.testclient import TestClient
+
+    import main
+
+    engine = TestClient(main.app).get("/v2/health").json()["workflow_engine"]
+
+    assert "error" not in engine, engine
+    assert engine["version"], "a version must be reported, not an empty string"
+    assert engine["agent_class"].startswith("agent_framework.")
+    assert engine["chat_client_class"].startswith("agent_framework_openai.")
