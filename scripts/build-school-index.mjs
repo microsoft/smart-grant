@@ -108,6 +108,14 @@ async function main() {
       endpoint: `https://educationdata.urban.org/api/v1/schools/ccd/directory/${YEAR}/`,
       year: Number(YEAR),
       builtAt: new Date().toISOString(),
+      // Travels with the data so a copy of this file is never separated from the
+      // attribution its licence requires. See NOTICE.md.
+      license: 'ODC-By-1.0',
+      licenseUrl: 'https://opendatacommons.org/licenses/by/1-0/',
+      attribution:
+        `Common Core of Data school directory (${YEAR}), Education Data Portal, ` +
+        'Urban Institute, https://educationdata.urban.org/documentation/, ' +
+        'made available under the ODC Attribution License.',
       fields: FIELDS,
       rows,
     }),

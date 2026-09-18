@@ -139,7 +139,7 @@ hand its ranking to the writer; it hands it to the user.
 | Browser localStorage | Last-used school, draft persistence | Per device |
 | Signed auth cookie | Session | 24 h |
 | Azure Blob Storage, container `pulse` | Pulse event log: one append blob per day, `YYYY/MM/DD.jsonl` | Permanent |
-| `data/schools-index.json` | 102,178 NCES rows, of which 100,237 are operating schools the picker can find | Versioned in the repo |
+| `data/schools-index.json` | 102,178 NCES rows, all of them findable by the picker; 1,068 are flagged closed | Versioned in the repo |
 
 Pulse used to write a SQLite file on the container's ephemeral disk, which
 meant the history was lost on every restart and never shared between
