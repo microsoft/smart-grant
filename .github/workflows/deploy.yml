@@ -82,7 +82,7 @@ jobs:
         run: az acr login --name "$ACR_LOGIN_SERVER"
 
       - name: Build and push backend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./agent_framework_backend
           file: ./agent_framework_backend/Dockerfile
@@ -90,7 +90,7 @@ jobs:
           tags: ${{ env.ACR_LOGIN_SERVER }}/smartgrant-backend:${{ github.sha }},${{ env.ACR_LOGIN_SERVER }}/smartgrant-backend:latest
 
       - name: Build and push frontend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
