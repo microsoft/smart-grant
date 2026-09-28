@@ -30,7 +30,7 @@ agent-framework-openai==1.14.3
 
 # Azure OpenAI Integration
 azure-identity==1.25.3
-openai==3.13.0
+openai==3.19.2
 
 # Web Framework
 fastapi==0.141.1
