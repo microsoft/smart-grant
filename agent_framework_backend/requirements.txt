@@ -25,8 +25,8 @@
 # aqui. Alem de inchar a imagem, o extra torna a versao impossivel de fixar:
 # ele resolve os sub-pacotes soltos, e os mais novos ja exigem um core mais
 # novo do que o guarda-chuva pinado permite -- um conflito insoluvel.
-agent-framework-core==1.18.0
-agent-framework-openai==1.14.3
+agent-framework-core==1.19.0
+agent-framework-openai==1.14.4
 
 # Azure OpenAI Integration
 azure-identity==1.25.3
