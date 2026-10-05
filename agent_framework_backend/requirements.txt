@@ -29,7 +29,7 @@ agent-framework-core==1.18.0
 agent-framework-openai==1.14.3
 
 # Azure OpenAI Integration
-azure-identity==1.25.3
+azure-identity==1.26.0
 openai==3.13.0
 
 # Web Framework
@@ -68,7 +68,7 @@ opentelemetry-exporter-otlp==1.44.0
 opentelemetry-instrumentation-fastapi==0.65b0
 
 # Pulse event log (append blobs, Entra ID auth)
-azure-storage-blob==12.30.1
+azure-storage-blob==12.31.0
 
 # Utilities
 rich>=13.7.0  # Beautiful console output
