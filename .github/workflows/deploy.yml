@@ -101,7 +101,7 @@ jobs:
 
       # O backend sobe primeiro: o frontend depende dele em tempo de execucao.
       - name: Deploy backend to Container Apps
-        uses: azure/CLI@v2
+        uses: azure/CLI@v3
         with:
           inlineScript: |
             set -euo pipefail
@@ -118,7 +118,7 @@ jobs:
         # as referencias ao Key Vault. Hoje os segredos sao resolvidos pela
         # identidade gerenciada atraves do endpoint privado, e nada aqui deve
         # toca-los.
-        uses: azure/CLI@v2
+        uses: azure/CLI@v3
         with:
           inlineScript: |
             set -euo pipefail
@@ -132,7 +132,7 @@ jobs:
         # Um deploy que nao verifica nao e um deploy. Confere se a revisao mais
         # recente de cada app roda a imagem deste commit, se foi provisionada e
         # esta em execucao, e se a tela de login responde.
-        uses: azure/CLI@v2
+        uses: azure/CLI@v3
         with:
           inlineScript: |
             set -euo pipefail
