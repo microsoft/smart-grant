@@ -51,7 +51,7 @@ jobs:
         working-directory: agent_framework_backend
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           # Must track agent_framework_backend/Dockerfile, for the same reason.
           python-version: "3.14"
